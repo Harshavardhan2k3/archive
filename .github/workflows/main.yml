@@ -28,7 +28,6 @@ jobs:
 
       - name: Set up YouTube Cookies
         run: |
-          # Write the GitHub Secret to a local file for yt-dlp
           echo "${{ secrets.YT_COOKIES }}" > cookies.txt
 
       - name: Download Stream (with Auto-Timeout)
@@ -37,6 +36,7 @@ jobs:
             --cookies cookies.txt \
             --wait-for-video 60 \
             --downloader m3u8:native \
+            -f "bestvideo+bestaudio/best" \
             --write-thumbnail \
             --embed-thumbnail \
             --embed-metadata \
@@ -51,12 +51,22 @@ jobs:
           MEGA_EMAIL: ${{ secrets.MEGA_EMAIL }}
           MEGA_PASSWORD: ${{ secrets.MEGA_PASSWORD }}
         run: |
-          # Updated to look for the new '9_' prefix from your yt-dlp output template
+          # Generate today's date in YYYY-MM-DD format
+          FOLDER_DATE=$(date +'%Y-%m-%d')
+          
           if ls 9_* 1> /dev/null 2>&1; then
-            echo "Archive found. Authenticating and uploading to MEGA..."
+            echo "Archive found. Authenticating with MEGA..."
             mega-login "$MEGA_EMAIL" "$MEGA_PASSWORD"
-            mega-put 9_* /
+            
+            echo "Creating daily folder inside /archives..."
+            # || true ensures it doesn't fail if the folder already exists
+            mega-mkdir "/archives/$FOLDER_DATE" || true
+            
+            echo "Uploading files to /archives/$FOLDER_DATE/ ..."
+            mega-put 9_* "/archives/$FOLDER_DATE/"
+            
             mega-logout
+            echo "Upload successfully completed!"
           else
             echo "No stream found."
           fi
