@@ -52,7 +52,7 @@ jobs:
           MEGA_PASSWORD: ${{ secrets.MEGA_PASSWORD }}
         run: |
           # Generate today's date in YYYY-MM-DD format
-          FOLDER_DATE=$(date +'%Y-%m-%d')
+          FOLDER_DATE=$(date +'%-d %B %Y')
           
           if ls 9_* 1> /dev/null 2>&1; then
             echo "Archive found. Authenticating with MEGA..."
