@@ -32,12 +32,11 @@ jobs:
           echo "${{ secrets.YT_COOKIES }}" > cookies.txt
 
       - name: Download Stream (with Auto-Timeout)
-        # timeout -s SIGINT 340m safely stops the process at 5h 40m.
-        # || true ensures the workflow moves to the next step even if the timeout occurs.
         run: |
           timeout --signal=SIGINT 340m yt-dlp \
             --cookies cookies.txt \
             --wait-for-video 60 \
+            --downloader m3u8:native \
             --write-thumbnail \
             --embed-thumbnail \
             --embed-metadata \
