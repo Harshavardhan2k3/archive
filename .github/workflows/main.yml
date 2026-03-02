@@ -4,7 +4,6 @@ on:
   workflow_dispatch: # Pure manual trigger, no inputs needed
 
 env:
-  # TARGET_URL: "https://www.youtube.com/@Harsha_Asta/live"
   TARGET_URL: "https://www.youtube.com/@Harsha_Asta/live"
 
 jobs:
@@ -14,7 +13,6 @@ jobs:
       - name: Install Dependencies (yt-dlp, Deno, ffmpeg & MEGAcmd)
         run: |
           sudo apt-get update
-          # Added ffmpeg here for the metadata and thumbnail embedding
           sudo apt-get install -y python3-pip unzip curl ffmpeg
           
           # Install yt-dlp via pip for the latest version
@@ -44,7 +42,8 @@ jobs:
             --embed-thumbnail \
             --embed-metadata \
             --force-ipv4 \
-            --extractor-args "youtube:player_client=ios,tv,web" \
+            --remote-components ejs:github \
+            --extractor-args "youtube:player_client=tv,web" \
             -o "9_%(upload_date)s_%(title)s_%(id)s.%(ext)s" \
             "$TARGET_URL" || true
 
