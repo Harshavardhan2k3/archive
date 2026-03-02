@@ -4,18 +4,18 @@ on:
   workflow_dispatch: # Pure manual trigger, no inputs needed
 
 env:
-  # REPLACE THIS with the actual channel's live URL
-  # Example: "https://www.youtube.com/@ChannelName/live"
+  # TARGET_URL: "https://www.youtube.com/@Harsha_Asta/live"
   TARGET_URL: "https://www.youtube.com/@Harsha_Asta/live"
 
 jobs:
   archive-stream:
     runs-on: ubuntu-22.04
     steps:
-      - name: Install Dependencies (yt-dlp, Deno & MEGAcmd)
+      - name: Install Dependencies (yt-dlp, Deno, ffmpeg & MEGAcmd)
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip unzip curl
+          # Added ffmpeg here for the metadata and thumbnail embedding
+          sudo apt-get install -y python3-pip unzip curl ffmpeg
           
           # Install yt-dlp via pip for the latest version
           pip3 install -U yt-dlp
@@ -34,7 +34,7 @@ jobs:
           echo "${{ secrets.YT_COOKIES }}" > cookies.txt
 
       - name: Download Stream (with Auto-Timeout)
-        # timeout -s SIGINT 345m safely stops the process at 5h 45m.
+        # timeout -s SIGINT 340m safely stops the process at 5h 40m.
         # || true ensures the workflow moves to the next step even if the timeout occurs.
         run: |
           timeout --signal=SIGINT 340m yt-dlp \
@@ -53,11 +53,11 @@ jobs:
           MEGA_EMAIL: ${{ secrets.MEGA_EMAIL }}
           MEGA_PASSWORD: ${{ secrets.MEGA_PASSWORD }}
         run: |
-          # Check if any archive file was actually created
-          if ls stream_archive_* 1> /dev/null 2>&1; then
+          # Updated to look for the new '9_' prefix from your yt-dlp output template
+          if ls 9_* 1> /dev/null 2>&1; then
             echo "Archive found. Authenticating and uploading to MEGA..."
             mega-login "$MEGA_EMAIL" "$MEGA_PASSWORD"
-            mega-put stream_archive_* /
+            mega-put 9_* /
             mega-logout
           else
             echo "No stream found."
