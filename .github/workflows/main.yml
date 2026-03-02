@@ -53,7 +53,12 @@ jobs:
           MEGA_EMAIL: ${{ secrets.MEGA_EMAIL }}
           MEGA_PASSWORD: ${{ secrets.MEGA_PASSWORD }}
         run: |
-          # Authenticate, upload the downloaded archive to the root directory, and logout
-          mega-login "$MEGA_EMAIL" "$MEGA_PASSWORD"
-          mega-put stream_archive_* /
-          mega-logout
+          # Check if any archive file was actually created
+          if ls stream_archive_* 1> /dev/null 2>&1; then
+            echo "Archive found. Authenticating and uploading to MEGA..."
+            mega-login "$MEGA_EMAIL" "$MEGA_PASSWORD"
+            mega-put stream_archive_* /
+            mega-logout
+          else
+            echo "No stream found."
+          fi
