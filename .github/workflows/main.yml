@@ -37,11 +37,15 @@ jobs:
         # timeout -s SIGINT 345m safely stops the process at 5h 45m.
         # || true ensures the workflow moves to the next step even if the timeout occurs.
         run: |
-          timeout -s SIGINT 345m yt-dlp \
+          timeout --signal=SIGINT 340m yt-dlp \
             --cookies cookies.txt \
-            --clients ios,web \
-            --extractor-args "youtube:player_client=ios" \
-            -o "stream_archive_%(id)s.%(ext)s" \
+            --wait-for-video 60 \
+            --write-thumbnail \
+            --embed-thumbnail \
+            --embed-metadata \
+            --force-ipv4 \
+            --extractor-args "youtube:player_client=ios,tv,web" \
+            -o "9_%(upload_date)s_%(title)s_%(id)s.%(ext)s" \
             "$TARGET_URL" || true
 
       - name: Upload to MEGA
